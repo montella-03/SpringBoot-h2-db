@@ -1,5 +1,6 @@
 package com.montella.sample.service;
 
+import com.montella.sample.error.DepartmentException;
 import com.montella.sample.entity.Department;
 import com.montella.sample.repository.DepartmentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class DepartmentServiceImplement implements DepartmentService{
@@ -23,8 +25,11 @@ public class DepartmentServiceImplement implements DepartmentService{
     }
 
     @Override
-    public Department fetchDepartmentById(Long departmentId) {
-        return repo.findById(departmentId).get();
+    public Department fetchDepartmentById(Long departmentId) throws DepartmentException {
+        Optional<Department> optional=repo.findById(departmentId);
+        if(!optional.isPresent())
+            throw new DepartmentException("department is unavailable");
+        return optional.get();
     }
 
     @Override
@@ -51,5 +56,11 @@ public class DepartmentServiceImplement implements DepartmentService{
             System.out.println("department not found");
         }
         return repo.save(db);
+    }
+
+    @Override
+    public Department getDepartmentByName(String name) {
+        return repo.findByDepartmentNameIgnoreCase(name);
+        // when the method isn't available , we define it from repo.
     }
 }
